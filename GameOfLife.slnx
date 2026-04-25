@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="./GameOfLife.Domain/GameOfLife.Domain.csproj" />
+  <Project Path="./GameOfLife.Application/GameOfLife.Application.csproj" />
+  <Project Path="./GameOfLife.Presentation/GameOfLife.Presentation.csproj" />
+  <Project Path="./GameOfLife.Tests/GameOfLife.Tests.csproj" />
+</Solution>
