@@ -11,9 +11,11 @@ namespace GameOfLife.Presentation.ViewModels;
 public class GameViewModel : ViewModelBase
 {
     private Grid _grid;
-    private readonly IGameRule _rule;
-    private readonly NextGeneration _nextGeneration;
+    private readonly INextGeneration _nextGeneration;
     private readonly ITimerService _timer;
+    private readonly IGridSeed _seed;
+
+    private bool _isRunning;
 
     public ObservableCollection<CellViewModel> Cells { get; } = new();
 
@@ -21,29 +23,50 @@ public class GameViewModel : ViewModelBase
     public ICommand StartCommand { get; }
     public ICommand StopCommand { get; }
 
-    public int Width { get; } = 20;
-    public int Height { get; } = 20;
+    public int Width { get; }
+    public int Height { get; }
 
-    public GameViewModel(Random random, ITimerService timer)
+    public bool IsRunning
     {
-        _rule = new GameOfLifeRule();
-        _nextGeneration = new NextGeneration(_rule);
-        _timer = timer;
+        get => _isRunning;
+        private set
+        {
+            _isRunning = value;
+            OnPropertyChanged();
 
-        var seed = new RandomSeed(random);
+            // Update button states
+            ((RelayCommand)StartCommand).RaiseCanExecuteChanged();
+            ((RelayCommand)StopCommand).RaiseCanExecuteChanged();
+        }
+    }
+
+    public GameViewModel(
+        int width,
+        int height,
+        ITimerService timer,
+        IGridSeed seed,
+        INextGeneration nextGeneration)
+    {
+        Width = width;
+        Height = height;
+
+        _timer = timer;
+        _seed = seed;
 
         _grid = Grid.CreateFromAliveCells(
             Width,
             Height,
-            seed.Create(Width, Height));
+            _seed.CreateAlivePositions(Width, Height));
 
         InitializeCells();
 
         StepCommand = new RelayCommand(Step);
-        StartCommand = new RelayCommand(Start);
-        StopCommand = new RelayCommand(Stop);
+        StartCommand = new RelayCommand(Start, () => !IsRunning);
+        StopCommand = new RelayCommand(Stop, () => IsRunning);
+        _nextGeneration = nextGeneration;
     }
 
+    // Initialize UI once
     private void InitializeCells()
     {
         Cells.Clear();
@@ -53,6 +76,8 @@ public class GameViewModel : ViewModelBase
             Cells.Add(new CellViewModel(cell));
         }
     }
+
+    // One simulation step
     private void Step()
     {
         var result = _nextGeneration.Execute(_grid);
@@ -65,6 +90,7 @@ public class GameViewModel : ViewModelBase
         UpdateCells();
     }
 
+    // Update UI without recreating objects
     private void UpdateCells()
     {
         var domainCells = _grid.GetAllCells().ToList();
@@ -75,13 +101,23 @@ public class GameViewModel : ViewModelBase
         }
     }
 
+    // Start simulation
     private void Start()
     {
+        if (IsRunning)
+            return;
+
         _timer.Start(Step);
+        IsRunning = true;
     }
 
+    // Stop simulation
     private void Stop()
     {
+        if (!IsRunning)
+            return;
+
         _timer.Stop();
+        IsRunning = false;
     }
 }

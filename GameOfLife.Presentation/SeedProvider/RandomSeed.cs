@@ -10,7 +10,7 @@ public class RandomSeed : IGridSeed
     {
         _random = random;
     }
-    public IEnumerable<Position> Create(int width, int height)
+    public IEnumerable<Position> CreateAlivePositions(int width, int height)
     {
         return Enumerable.Range(0, (width * height) / 5)
             .Select(_ => new Position(

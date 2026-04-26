@@ -4,7 +4,7 @@ using GameOfLife.Application.Results;
 
 namespace GameOfLife.Application.Features;
 
-public class NextGeneration
+public class NextGeneration : INextGeneration
 {
     private readonly IGameRule _rule;
 

@@ -31,7 +31,7 @@ public class Grid
 
     public int CountAliveNeighbors(Position position)
     {
-        int count = 0;
+        int countAliveNeighbors = 0;
 
         for (int x = -1; x <= 1; x++)
         {
@@ -45,12 +45,12 @@ public class Grid
                 if (IsInside(neighbor) &&
                     _cells[neighbor.X, neighbor.Y].State == CellState.Alive)
                 {
-                    count++;
+                    countAliveNeighbors++;
                 }
             }
         }
 
-        return count;
+        return countAliveNeighbors;
     }
     public Grid NextGeneration(IGameRule rule)
     {
@@ -61,7 +61,7 @@ public class Grid
             var currentCell = _cells[position.X, position.Y];
             var aliveNeighbors = CountAliveNeighbors(position);
 
-            var nextState = rule.GetNextState(currentCell.State, aliveNeighbors);
+            var nextState = rule.DetermineNextState(currentCell.State, aliveNeighbors);
 
             newCells[position.X, position.Y] = currentCell with { State = nextState };
         }

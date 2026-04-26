@@ -3,17 +3,17 @@
 namespace GameOfLife.Domain.Rules;
 public class GameOfLifeRule : IGameRule
 {
-    public CellState GetNextState(CellState current, int neighbors)
+    public CellState DetermineNextState(CellState currentState, int aliveNeighbors)
     {
-        return current switch
+        return currentState switch
         {
-            CellState.Alive when neighbors < 2 => CellState.Dead,
-            CellState.Alive when neighbors <= 3 => CellState.Alive,
+            CellState.Alive when aliveNeighbors < 2 => CellState.Dead,
+            CellState.Alive when aliveNeighbors <= 3 => CellState.Alive,
             CellState.Alive => CellState.Dead,
 
-            CellState.Dead when neighbors == 3 => CellState.Alive,
+            CellState.Dead when aliveNeighbors == 3 => CellState.Alive,
 
-            _ => current
+            _ => currentState
         };
     }
 }

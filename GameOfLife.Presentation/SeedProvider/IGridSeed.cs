@@ -3,5 +3,5 @@
 namespace GameOfLife.Presentation.SeedProvider;
 public interface IGridSeed
 {
-    IEnumerable<Position> Create(int width, int height);
+    IEnumerable<Position> CreateAlivePositions(int width, int height);
 }

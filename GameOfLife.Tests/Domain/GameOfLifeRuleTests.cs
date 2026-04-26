@@ -3,42 +3,58 @@ using GameOfLife.Domain.Enums;
 using GameOfLife.Domain.Rules;
 using Xunit;
 
-namespace GameOfLife.Tests.Domain;
 public class GameOfLifeRuleTests
 {
     private readonly GameOfLifeRule _rule = new();
 
-    [Fact]
-    public void AliveCell_WithLessThan2Neighbors_ShouldDie()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void AliveCell_WithLessThanTwoNeighbors_ShouldDie(int neighbors)
     {
-        var result = _rule.GetNextState(CellState.Alive, 1);
+        var result = _rule.DetermineNextState(CellState.Alive, neighbors);
 
         result.Should().Be(CellState.Dead);
     }
 
-    [Fact]
-    public void AliveCell_With2Or3Neighbors_ShouldLive()
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void AliveCell_WithTwoOrThreeNeighbors_ShouldSurvive(int neighbors)
     {
-        _rule.GetNextState(CellState.Alive, 2)
-            .Should().Be(CellState.Alive);
-
-        _rule.GetNextState(CellState.Alive, 3)
-            .Should().Be(CellState.Alive);
-    }
-
-    [Fact]
-    public void AliveCell_WithMoreThan3Neighbors_ShouldDie()
-    {
-        var result = _rule.GetNextState(CellState.Alive, 4);
-
-        result.Should().Be(CellState.Dead);
-    }
-
-    [Fact]
-    public void DeadCell_WithExactly3Neighbors_ShouldBecomeAlive()
-    {
-        var result = _rule.GetNextState(CellState.Dead, 3);
+        var result = _rule.DetermineNextState(CellState.Alive, neighbors);
 
         result.Should().Be(CellState.Alive);
+    }
+
+    [Theory]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    public void AliveCell_WithMoreThanThreeNeighbors_ShouldDie(int neighbors)
+    {
+        var result = _rule.DetermineNextState(CellState.Alive, neighbors);
+
+        result.Should().Be(CellState.Dead);
+    }
+
+    [Fact]
+    public void DeadCell_WithExactlyThreeNeighbors_ShouldBecomeAlive()
+    {
+        var result = _rule.DetermineNextState(CellState.Dead, 3);
+
+        result.Should().Be(CellState.Alive);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(4)]
+    public void DeadCell_WithNonThreeNeighbors_ShouldStayDead(int neighbors)
+    {
+        var result = _rule.DetermineNextState(CellState.Dead, neighbors);
+
+        result.Should().Be(CellState.Dead);
     }
 }
